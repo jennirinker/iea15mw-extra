@@ -6,5 +6,5 @@ design.
 
 ## Tower model in yaml
 
-See iisue [here](https://github.com/IEAWindTask37/IEA-15-240-RWT/issues/147)
+See issue [here](https://github.com/IEAWindTask37/IEA-15-240-RWT/issues/147)
 
