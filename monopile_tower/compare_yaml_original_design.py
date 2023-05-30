@@ -10,15 +10,12 @@ NOTE
 You must (1) have a local copy of the IEA 15 MW repo and (2) update the IEA15MW_GIT_DIR
 variable in _iea15mwpath.py to run this script.
 """
-import os
-
 import matplotlib.pyplot as plt
 import numpy as np
 import yaml
 
 from _functions import load_body_properties, calculate_mpl
 from _iea15mwpath import IEA15MW_GIT_DIR
-
 
 
 # paths
