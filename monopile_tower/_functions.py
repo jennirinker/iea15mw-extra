@@ -1,15 +1,21 @@
 """Helper functions for scripts for onshore tower analysis.
 """
 import numpy as np
+import pandas as pd
 import yaml
 
 
 PI = np.pi  # for convenience
 
-# Original design
-TWR_STN_ORIG = np.array([15, 15.01, 28, 28.01, 41, 41.01, 54, 54.01, 67, 67.01, 80, 80.01, 93, 93.01, 106, 106.01, 119, 119.01, 132, 132.01, 144.386])
+# Original design [ALMOST -- note tower is shortened to get correct hub height]
+TWR_STN_ORIG = np.array([15, 15.001, 28, 28.001, 41, 41.001, 54, 54.001, 67, 67.001, 80, 80.001, 93, 93.001, 106, 106.001, 119, 119.001, 132, 132.001, 144.386])
 OUT_DIAM_ORIG = np.array([10., 10., 10., 10., 9.926, 9.926, 9.443, 9.443, 8.833, 8.833, 8.151, 8.151, 7.39, 7.39, 6.909, 6.909, 6.748, 6.748, 6.572, 6.572, 6.5])
 THICK_ORIG = np.array([0.041058, 0.039496, 0.039496, 0.036456, 0.036456, 0.033779, 0.033779, 0.032192, 0.032192, 0.030708, 0.030708, 0.029101, 0.029101, 0.027213, 0.027213, 0.024009, 0.024009, 0.020826, 0.020826, 0.023998, 0.023998])
+
+# Proposed new specification
+TWR_STN_NEW = np.array([15, 28, 28.001, 41, 41.001, 54, 54.001, 67, 67.001, 80, 80.001, 93, 93.001, 106, 106.001, 119, 119.001, 132, 132.001, 144.386])
+OUT_DIAM_NEW = np.array([10., 10., 10., 9.926, 9.926, 9.443, 9.443, 8.833, 8.833, 8.151, 8.151, 7.39, 7.39, 6.909, 6.909, 6.748, 6.748, 6.572, 6.572, 6.5])
+THICK_NEW = np.array([0.039496, 0.039496, 0.036456, 0.036456, 0.033779, 0.033779, 0.032192, 0.032192, 0.030708, 0.030708, 0.029101, 0.029101, 0.027213, 0.027213, 0.024009, 0.024009, 0.020826, 0.020826, 0.023998, 0.023998])
 
 
 def load_body_properties(bodyname, yamldict, start_from_zero=False):
@@ -46,6 +52,14 @@ def calculate_mpl(out_diam, thick, rho, outfitting_factor=1):
     """Calculate mass per unit length, including outfitting."""
     area = calculate_area(out_diam, thick)
     return rho * area * outfitting_factor
+
+
+def load_excel_tower(path, toweronly=True):
+    """Load tower properties from excel doc."""
+    df = pd.read_excel(path, sheet_name='Tower Properties', usecols='B:K')
+    if toweronly:
+        df = df[df['Height [m]'] >= 15]
+    return df
 
 
 def calculate_mom_iner(out_diam, thick):

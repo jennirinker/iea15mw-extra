@@ -16,6 +16,7 @@ from _iea15mwpath import IEA15MW_GIT_DIR
 yaml_path = IEA15MW_GIT_DIR / 'WT_Ontology/IEA-15-240-RWT.yaml'  # yaml file with data
 ed_path = IEA15MW_GIT_DIR / 'OpenFAST/IEA-15-240-RWT-Monopile/IEA-15-240-RWT-Monopile_ElastoDyn_tower.dat'  # elastodyn file
 h2_st_path = IEA15MW_GIT_DIR / 'HAWC2/IEA-15-240-RWT-FixedSubstructure/data/IEA_15MW_RWT_Tower_st.dat'  # hawc2 st file
+ex_path = IEA15MW_GIT_DIR / 'Documentation/IEA-15-240-RWT_tabular.xlsx'  # pth to excel file
 
 # load the yaml file as nested dictionaries
 yamldata = myf.load_yaml(yaml_path)
@@ -35,6 +36,12 @@ ed_st = myf.load_elastodyn_distprop(ed_path)
 # load the hawc2 tower properties
 h2_st = myf.load_hawc2_st(h2_st_path)
 
+# load the excel tower properties, isolate what we want
+ex_df = myf.load_excel_tower(ex_path)
+mpl_ex = ex_df.iloc[:, 3].to_numpy()
+EIx_ex = ex_df.iloc[:, 6].to_numpy()
+EIy_ex = ex_df.iloc[:, 7].to_numpy()
+
 # visualize the difference
 fig, axs = plt.subplots(1, 3, num=1, figsize=(8, 3.5))
 
@@ -43,6 +50,7 @@ y_orig = myf.normalize_tower_station(myf.TWR_STN_ORIG)
 y_yaml = myf.normalize_tower_station(twr_stn)
 y_ed = myf.normalize_tower_station(ed_st[:, 0])
 y_hawc2 = myf.normalize_tower_station(h2_st[:, 0])
+y_ex = myf.normalize_tower_station(ex_df.iloc[:, 0].to_numpy())
 
 # plot mass per length and two bending stiffnesses
 for iax, ax in enumerate(axs):
@@ -51,23 +59,27 @@ for iax, ax in enumerate(axs):
         x_ed = ed_st[:, 1]
         x_yaml = mpl_yaml
         x_hawc2 = h2_st[:, 1]
+        x_ex = mpl_ex
         AXTITLE = 'Mass per unit length'
     elif iax == 1:  # bending stiffness -- x direction
         x_orig = EI_orig
         x_ed = ed_st[:, 2]
         x_yaml = EI_yaml
         x_hawc2 = h2_st[:, 8]*h2_st[:, 10]
+        x_ex = EIx_ex
         AXTITLE = 'Fore-aft bending stiff.'
     elif iax == 2:  # bending stiffness -- y direction
         x_orig = EI_orig
         x_ed = ed_st[:, 3]
         x_yaml = EI_yaml
         x_hawc2 = h2_st[:, 8]*h2_st[:, 11]
+        x_ex = EIy_ex
         AXTITLE = 'Side-side bending stiff.'
     ax.plot(x_orig, y_orig, c='k', label='Original design')
     ax.plot(x_yaml, y_yaml, c='C0', label='In yaml file')
-    ax.plot(x_ed, y_ed, marker='.', c='C1', lw=1, label='OpenFAST')
-    ax.plot(x_hawc2, y_hawc2, '--', c='C2', marker='+', lw=1, label='HAWC2')
+    ax.plot(x_ex, y_ex, ':', c='C1', marker='o', ms=4.5, lw=1, label='Excel')
+    ax.plot(x_ed, y_ed, marker='.', c='C2', lw=1, label='OpenFAST')
+    ax.plot(x_hawc2, y_hawc2, '--', c='C3', marker='+', lw=1, label='HAWC2')
     ax.grid()
     ax.set(title=AXTITLE)
 
